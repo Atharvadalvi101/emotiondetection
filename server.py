@@ -27,8 +27,11 @@ def predict():
         if img is None:
             return jsonify({"error": "Could not decode image"}), 400
 
-        # Resize and normalize the image
-        img = cv2.resize(img, (48, 48))
+        # Check if the image is of the correct size, resize if necessary
+        if img.shape != (48, 48):
+            img = cv2.resize(img, (48, 48))
+        
+        # Normalize and reshape image for inference
         img = img.astype(np.float32) / 255.0
         img = img.reshape(1, 48, 48, 1)
 
@@ -41,6 +44,7 @@ def predict():
         return jsonify({"emotion": prediction})
     
     except Exception as e:
+        print(f"Error: {e}")  # Logs detailed error on the server side
         return jsonify({"error": str(e)}), 500
 
 @app.route("/", methods=["GET"])
